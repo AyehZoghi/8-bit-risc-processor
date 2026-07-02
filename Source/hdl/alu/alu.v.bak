@@ -1,0 +1,42 @@
+module ALU(clk, a, b, s, out, co);
+    input clk;
+    input[7:0] a, b;
+    input[2:0] s;
+    output[7:0] out;
+    output co;
+    wire[7:0] add;
+    wire addco;
+    wire[7:0] sub;
+    wire subco;
+    wire [7:0] compareOut;
+    wire [7:0] sqrtOut;
+    
+    Adder8 adder(a,b,1'b0,add,addco);
+    Subtractor subtractor(a, b, 1'b1, sub, subco);
+    signed_comparator compare(compareOut,a,b);
+    Sqrt sqrt (clk,a,sqrtOut);
+
+    assign out = 
+        (s == 3'b000) ? add :
+        (s == 3'b001) ? sub :
+		(s == 3'b010) ? compareOut :
+        (s == 3'b011) ? {a[6:0], 1'b0} :
+		(s == 3'b100) ? a :
+		(s == 3'b101) ? a :
+        (s == 3'b110) ? ~a : 
+        //(s == 3'b111) ? sqrtOut :
+        (s == 3'b111) ?  :$sqrt (a);
+		
+        8'bx;
+    assign co = 
+        (s == 3'b000) ? addco :
+        (s == 3'b001) ? subco :
+		(s == 3'b010) ? 1'b0 :
+        (s == 3'b011) ? a[7] :
+		(s == 3'b100) ? 1'b0 :
+		(s == 3'b101) ? 1'b0 :
+        (s == 3'b110) ? 1'b0 :
+        (s == 3'b111) ? 1'b0 : 
+        1'bx;
+
+endmodule

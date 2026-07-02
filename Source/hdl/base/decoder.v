@@ -1,0 +1,29 @@
+module Decoder2to4(input[1:0] in, output reg[3:0] out);
+    
+    always @(in) begin
+        case(in)
+            2'b00: out = 4'b0001; 
+            2'b01: out = 4'b0010; 
+            2'b10: out = 4'b0100; 
+            2'b11: out = 4'b1000; 
+            default: out = 4'bx;
+        endcase
+    end
+endmodule
+
+module Decoder3to8(input[2:0] in, output reg[7:0] out);
+   
+    always @(in) begin
+        case(in)
+            3'b000: out = 8'b00000001;
+            3'b001: out = 8'b00000010;
+            3'b010: out = 8'b00000100;
+            3'b011: out = 8'b00001000;
+            3'b100: out = 8'b00010000;
+            3'b101: out = 8'b00100000;
+            3'b110: out = 8'b01000000;
+            3'b111: out = 8'b10000000;
+            default: out = 8'bx;
+        endcase
+    end
+endmodule

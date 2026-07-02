@@ -1,0 +1,34 @@
+module signed_comparator(out,A,B);
+
+output reg[7:0] out;
+//output reg equal;
+//output reg less;
+input signed [7:0] A;
+input signed [7:0] B;
+
+always @(A or B) begin
+    if (A == B) begin
+        //equal = 1'b1;
+        //greater = 1'b0;
+        //less = 1'b0;
+	//equal out=00000001
+	out=8'b00000001;
+
+    end else if (A > B) begin
+        //equal = 1'b0;
+        //greater = 1'b1;
+        //less = 1'b0;
+	//gt out=00000010
+	out=8'b00000010;
+    end else begin
+        //equal = 1'b0;
+        //greater = 1'b0;
+        //less = 1'b1;
+	//lt out=00000100
+	out=8'b00000100;
+    end
+end
+
+endmodule
+
+

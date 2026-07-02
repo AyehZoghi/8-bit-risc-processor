@@ -1,0 +1,82 @@
+module CPU(clk, rst, memOut, memIn, read, write, addr);
+    input clk, rst;
+    output read, write;
+    input[7:0] memOut;
+    output[7:0] memIn;
+    output[4:0] addr;
+
+    wire[7:0] bus, pc, dr, ac, ir, alu;
+    wire[4:0] ar;
+    wire co;
+    wire ldAR, ldPC, ldDR, ldAC, ldIR;
+    wire rstAR, rstPC, rstDR, rstAC, rstIR, rstSC;
+    wire incAR, incPC, incDR, incAC, incIR;
+    wire[7:0] t;
+    wire[3:0] d;
+    wire[2:0] busSel;
+    wire[1:0] aluOp;
+    wire[2:0] sc;
+    wire addOp, shiftOp, cmpOp, noOp;
+    wire busAR, busPC, busDR, busAC, busIR, busMem;
+    wire i;
+
+    assign memIn = bus;
+    assign addr = ar;
+    assign i = ir[7];
+
+    // SC
+    assign rstSC = (d[0]&t[5]) | (d[1]&t[6]) | (d[2]&t[5]) | (d[3]&t[6]) | rst;
+    // alu
+    assign addOp = d[0]&t[5];
+    assign shiftOp = d[1]&t[5];
+    assign cmpOp = d[3]&t[5];
+    assign noOp = d[2]&t[5];
+    // AR
+    assign ldAR = t[0] | t[2] | (i&t[3]);
+    assign rstAR = 1'b0;
+    assign incAR = 1'b0;
+    // DR
+    assign ldDR = t[4];
+    assign rstDR = 1'b0;
+    assign incDR = 1'b0;
+    // AC
+    assign ldAC = t[5];
+    assign rstAC = 1'b0;
+    assign incAC = 1'b0;
+    // PC
+    assign ldPC = 1'b0;
+    assign rstPC = rst;
+    assign incPC = t[1];
+    // IR
+    assign ldIR = t[1];
+    assign rstIR = 1'b0;
+    assign incIR = 1'b0;
+    // BUS
+    assign busAC = (d[1]&t[6]) | (d[3]&t[6]);
+    assign busAR = 1'b0;
+    assign busDR = 1'b0;
+    assign busIR = t[2];
+    assign busPC = t[0];
+    assign busMem = t[1] | (i&t[3]) | t[4];
+    // Memory
+    assign read = t[1] | (i&t[3]) | t[4];
+    assign write = (d[1]&t[6]) | (d[3]&t[6]);
+
+    Encoder8to3 e1({1'b0, 1'b0, busMem, busIR, busAC, busDR, busPC, busAR}, busSel);
+    BUS COM({3'b0, ar}, pc, dr, ac, ir, memOut, 8'bx, 8'bx, busSel, bus);
+
+    Encoder4to2 e2({noOp, cmpOp, shiftOp, addOp}, aluOp);
+    ALU LU(dr, ac, aluOp, alu, co);
+
+    Decoder2to4 d1(ir[6:5], d);
+
+    Counter SC(clk, rstSC, 1'b1, sc);
+    Decoder3to8 d2(sc, t);
+    
+    Register8 PC(clk, bus, ldPC, rstPC, incPC, pc);
+    Register8 DR(clk, bus, ldDR, rstDR, incDR, dr);
+    Register8 AC(clk, alu, ldAC, rstAC, incAC, ac);
+    Register8 IR(clk, bus, ldIR, rstIR, incIR, ir);
+    Register4 AR(clk, bus[3:0], ldAR, rstAR, incAR, ar);
+
+endmodule
