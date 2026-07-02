@@ -43,7 +43,7 @@ For the comparison instruction, the output codes are:
 ## Repository Structure
 
 ```text
-FinalProject/
+8-bit RISC Processor in Verilog/
 ├── Source/
 │   ├── hdl/
 │   │   ├── alu/
